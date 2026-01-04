@@ -6,4 +6,7 @@
 /.vs
 /.vs/RunBuddies/CopilotIndices/18.0.981.45449
 /.vs/RunBuddies.slnx/FileContentIndex
-/backend/RunBuddies.Api/obj
+/Service/obj
+/Service/.vs/RunBuddies
+/Service/bin/Debug/net10.0
+/Service/.claude
