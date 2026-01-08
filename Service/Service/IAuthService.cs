@@ -5,7 +5,9 @@ namespace RunBuddies.Service
 {
     public interface IAuthService
     {
+        Task<AuthResponse> Register(RegisterRequest request);
         Task<ActionResult<AuthResponse>> Login(LoginRequest request);
-        Task<AuthResponse> RegisterUser(RegisterRequest request);
+
+        Task<ActionResult<AuthResponse>> Refresh(LoginRequest request);
     }
 }

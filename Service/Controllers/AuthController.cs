@@ -21,7 +21,7 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var result = await _authService.RegisterUser(request);
+            var result = await _authService.Register(request);
             return result;
         }
         catch (AuthorizationException ex)
@@ -36,6 +36,21 @@ public class AuthController : ControllerBase
         try
         {
             var result = await _authService.Login(request);
+            return result;
+        }
+        catch (AuthorizationException ex)
+        {
+            return Unauthorized(ex.Message);
+        }
+
+    }
+
+    [HttpPost("refresh")]
+    public async Task<ActionResult<AuthResponse>> RefreshToken(LoginRequest request)
+    {
+        try
+        {
+            var result = await _authService.Refresh(request);
             return result;
         }
         catch (AuthorizationException ex)

@@ -19,7 +19,7 @@ namespace RunBuddies.Service
             _jwtTokenGenerator = jwtTokenGenerator;
         }
 
-        public async Task<AuthResponse> RegisterUser(RegisterRequest request)
+        public async Task<AuthResponse> Register(RegisterRequest request)
         {
             if (_dbContext.Users.Any(u => Equals(u.Email, request.Email)))
                 throw new AuthorizationException($"Email {request.Email} has already been registered");
@@ -31,7 +31,6 @@ namespace RunBuddies.Service
                 PasswordHash = hashedPassword,
                 CreatedAt = DateTime.UtcNow
             };
-
 
             var token = _jwtTokenGenerator.GenerateToken(user);
             _dbContext.Users.Add(user);
@@ -49,16 +48,10 @@ namespace RunBuddies.Service
 
         public async Task<ActionResult<AuthResponse>> Login(LoginRequest request)
         {
-            var user = await _dbContext.Users
-              .Include(u => u.Profile)
-              .FirstOrDefaultAsync(u => u.Email == request.Email);
-
-            if (user == null)
-                throw new AuthorizationException("Invalid email or password");
-            if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
-                throw new AuthorizationException("Invalid email or password");
+            var user = await GetUser(request);
 
             var token = _jwtTokenGenerator.GenerateToken(user);
+
             user.LastLoginAt = DateTime.UtcNow;
             await _dbContext.SaveChangesAsync();
 
@@ -72,6 +65,42 @@ namespace RunBuddies.Service
 
             return authResponse;
         }
+
+        public async Task<ActionResult<AuthResponse>> Refresh(LoginRequest request)
+        {
+           
+            var user = await GetUser(request);
+
+            var token = _jwtTokenGenerator.GenerateToken(user);
+
+            var authResponse = new AuthResponse
+            {
+                UserId = user.Id,
+                Email = user.Email,
+                Token = token,
+                HasProfile = user.Profile != null
+            };
+
+            return authResponse;
+        }
+
+        public async Task<User> GetUser(LoginRequest request)
+        {
+            var user = await _dbContext.Users
+            .Include(u => u.Profile)
+            .FirstOrDefaultAsync(u => u.Email == request.Email);
+
+            if (user == null)
+                throw new AuthorizationException("User was not found.");
+            if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+                throw new AuthorizationException("Credentials are not correct.");
+
+            var token = _jwtTokenGenerator.GenerateToken(user);
+
+            return user;
+        }
+
+
 
     }
 }
