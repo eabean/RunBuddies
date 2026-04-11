@@ -61,15 +61,12 @@ var app = builder.Build();
 // Enable CORS middleware BEFORE routing
 app.UseCors("AllowLocalhost");
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseRouting();
 app.MapControllers();
 
 app.Run();
