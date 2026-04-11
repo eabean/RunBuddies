@@ -16,6 +16,7 @@ public class Profile
     public string? Goals { get; set; }
     public string? Biography { get; set; }
     public string? LookingFor { get; set; }
+    public string? ContactInfo { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 
