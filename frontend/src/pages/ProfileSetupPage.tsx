@@ -109,7 +109,9 @@ const ProfileSetupPage = () => {
     setSubmitting(true);
     setError('');
     try {
+      // Create profile
       await api.createProfile(token, formData);
+      // Save prompt answers
       if (answers.length > 0) {
         await api.savePromptAnswers(token, answers);
       }
@@ -149,6 +151,7 @@ const ProfileSetupPage = () => {
               <input
                 type="text"
                 name="firstName"
+          placeholder="First Name"
                 value={formData.firstName}
                 onChange={handleInputChange}
                 placeholder="John"
@@ -172,6 +175,7 @@ const ProfileSetupPage = () => {
               <input
                 type="text"
                 name="zipCode"
+          placeholder="Zip Code"
                 value={formData.zipCode}
                 onChange={handleInputChange}
                 placeholder="10001"
@@ -212,6 +216,7 @@ const ProfileSetupPage = () => {
                 <input
                   type="number"
                   name="paceMinutes"
+          placeholder="Pace (minutes)"
                   value={formData.paceMinutes}
                   onChange={handleInputChange}
                   placeholder="8"
@@ -229,6 +234,7 @@ const ProfileSetupPage = () => {
               <input
                 type="number"
                 name="matchingRadiusKm"
+          placeholder="Matching Radius (km)"
                 value={formData.matchingRadiusKm}
                 onChange={handleInputChange}
                 placeholder="10"
@@ -278,6 +284,7 @@ const ProfileSetupPage = () => {
               <label className="form-label">About You</label>
               <textarea
                 name="biography"
+          placeholder="Biography"
                 value={formData.biography}
                 onChange={handleInputChange}
                 placeholder="Tell us a little about yourself..."
@@ -288,6 +295,7 @@ const ProfileSetupPage = () => {
               <label className="form-label">What You're Looking For</label>
               <textarea
                 name="lookingFor"
+          placeholder="Looking For"
                 value={formData.lookingFor}
                 onChange={handleInputChange}
                 placeholder="What are you looking for in a running partner?"
@@ -298,6 +306,7 @@ const ProfileSetupPage = () => {
               <label className="form-label">Goals</label>
               <textarea
                 name="goals"
+          placeholder="Goals"
                 value={formData.goals}
                 onChange={handleInputChange}
                 placeholder="Your running goals..."
@@ -309,6 +318,7 @@ const ProfileSetupPage = () => {
               <input
                 type="text"
                 name="contactInfo"
+          placeholder="Contact Info (phone, Instagram, etc.)"
                 value={formData.contactInfo}
                 onChange={handleInputChange}
                 placeholder="Instagram, phone, email..."
