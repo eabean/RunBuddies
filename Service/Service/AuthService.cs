@@ -100,7 +100,59 @@ namespace RunBuddies.Service
             return user;
         }
 
+        public async Task<AuthResponse> LoginAsync(LoginRequest request)
+        {
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+            
+            if (user == null)
+            {
+                throw new AuthorizationException("Invalid email or password");
+            }
+            
+            if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            {
+                throw new AuthorizationException("Invalid email or password");
+            }
+            
+            var token = _jwtTokenGenerator.GenerateToken(user);  // Pass user object instead
+            
+            return new AuthResponse
+            {
+                UserId = user.Id,
+                Email = user.Email,
+                Token = token,
+                HasProfile = user.Profile != null
+            };
+        }
 
+        public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
+        {
+            var existingUser = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+            if (existingUser != null)
+            {
+                throw new AuthorizationException("Email already registered");
+            }
 
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                Email = request.Email,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),  // MUST hash here
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _dbContext.Users.Add(user);
+            await _dbContext.SaveChangesAsync();
+
+            var token = _jwtTokenGenerator.GenerateToken(user);
+
+            return new AuthResponse
+            {
+                UserId = user.Id,
+                Email = user.Email,
+                Token = token,
+                HasProfile = false
+            };
+        }
     }
 }
