@@ -46,6 +46,7 @@ public class RunBuddiesDbContext : DbContext
             entity.Property(e => e.Longitude).HasPrecision(9, 6);
             entity.Property(e => e.PaceMinutes).HasPrecision(5, 2).IsRequired();
             entity.Property(e => e.MatchingRadiusKm).HasDefaultValue(25);
+            entity.Property(e => e.ContactInfo).HasMaxLength(255);
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("NOW()");
             entity.Property(e => e.UpdatedAt).HasDefaultValueSql("NOW()");
             entity.HasIndex(e => e.ZipCode);

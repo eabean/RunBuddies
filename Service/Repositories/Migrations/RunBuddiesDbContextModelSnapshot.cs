@@ -136,6 +136,10 @@ namespace RunBuddies.Data.Migrations
                     b.Property<string>("Biography")
                         .HasColumnType("text");
 
+                    b.Property<string>("ContactInfo")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
