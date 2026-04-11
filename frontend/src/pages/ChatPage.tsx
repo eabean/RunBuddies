@@ -48,7 +48,6 @@ const ChatPage: React.FC = () => {
         ))}
       </div>
       <button onClick={handleLogout}>Logout</button>
-      <ChatWindow />
     </div>
   );
 };
