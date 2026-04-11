@@ -30,10 +30,10 @@ Create `Service/appsettings.Development.json` with your PostgreSQL connection st
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Port=5432;Database=runbuddies;Username=YOUR_USER;Password=YOUR_PASSWORD"
+    "DefaultConnection": "Host=localhost;Port=5432;Database=runbuddies;Username=angelatian;Password=YOUR_PASSWORD"
   },
   "JwtSettings": {
-    "Secret": "your-secret-key-at-least-32-chars-long",
+    "Secret": "PoSrsED9ZQPvTsLKaWdXNMv273OJmN/nlk9SxRwqLU0=",
     "Issuer": "RunBuddies",
     "Audience": "RunBuddies",
     "ExpirationMinutes": 60
