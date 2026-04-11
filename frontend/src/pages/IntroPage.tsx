@@ -1,16 +1,46 @@
-import React from 'react';
+import { useState } from 'react';
 import LoginForm from '../components/auth/LoginForm';
 import SignupForm from '../components/auth/SignupForm';
-// import './IntroPage.css'; // Optional: Add styles specific to the IntroPage
+import '../styles/IntroPage.css';
 
 const IntroPage = () => {
+  const [isLogin, setIsLogin] = useState(true);
+
   return (
     <div className="intro-page">
-      <h1>Welcome to RunBuddies</h1>
-      <p>Please log in or create an account to get started.</p>
-      <div className="auth-forms">
-        <LoginForm />
-        <SignupForm />
+      <video
+        className="intro-video"
+        autoPlay
+        muted
+        loop
+        playsInline
+      >
+        <source src="/videos/running-bg.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+
+      <div className="intro-container">
+        <h1>🏃 RunBuddies</h1>
+        <p>Find your perfect running partner</p>
+
+        <div className="intro-tabs">
+          <button
+            className={isLogin ? 'active' : ''}
+            onClick={() => setIsLogin(true)}
+          >
+            Login
+          </button>
+          <button
+            className={!isLogin ? 'active' : ''}
+            onClick={() => setIsLogin(false)}
+          >
+            Sign Up
+          </button>
+        </div>
+
+        <div className="form-section">
+          {isLogin ? <LoginForm /> : <SignupForm />}
+        </div>
       </div>
     </div>
   );

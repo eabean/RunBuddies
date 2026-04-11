@@ -6,7 +6,7 @@ function App() {
   return (
     <AuthProvider>
       <Container>
-        <AppRouter />
+      <AppRouter />
       </Container>
     </AuthProvider>
   );

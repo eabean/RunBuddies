@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import ChatWindow from '../components/chat/ChatWindow';
+import '../styles/ChatPage.css';
 
 const ChatPage: React.FC = () => {
   const navigate = useNavigate();
