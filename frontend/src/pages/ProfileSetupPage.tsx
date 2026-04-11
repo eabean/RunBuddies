@@ -27,6 +27,17 @@ const ProfileSetupPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [selectedPrompts, setSelectedPrompts] = useState<string[]>([]);
+
+  // Predefined prompts
+  const availablePrompts = [
+    { id: 'frequency', text: 'How often do you run?' },
+    { id: 'time', text: 'When do you like to run?' },
+    { id: 'location', text: 'Where do you like to run?' },
+    { id: 'injuries', text: 'Do you have any injuries?' },
+    { id: 'pets', text: 'Do you have pets you like to run with?' },
+    { id: 'type', text: 'What type of run do you like to do?' },
+  ];
 
   useEffect(() => {
     const loadPrompts = async () => {
@@ -46,6 +57,12 @@ const ProfileSetupPage = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handlePromptSelect = (promptId: string) => {
+    setSelectedPrompts((prev) =>
+      prev.includes(promptId) ? prev.filter((id) => id !== promptId) : [...prev, promptId]
+    );
   };
 
   const handlePromptAnswerChange = (promptId: string, answerText: string) => {
@@ -322,18 +339,78 @@ const ProfileSetupPage = () => {
           <>
             <div className="step-title">
               <h2>Answer some questions</h2>
-              <p>Let people know more about you</p>
+              <p>Select up to 3 prompts to answer</p>
             </div>
 
-            {prompts.map((prompt) => (
-              <div key={prompt.id} className="prompt-group">
-                <label className="form-label">{prompt.promptText}</label>
-                <textarea
-                  placeholder="Your answer..."
-                  onChange={(e) => handlePromptAnswerChange(prompt.id, e.target.value)}
-                />
-              </div>
-            ))}
+            <div className="prompts-container">
+              {selectedPrompts.map((promptId, index) => {
+                const prompt = availablePrompts.find((p) => p.id === promptId);
+                const remainingPrompts = availablePrompts.filter(
+                  (p) => !selectedPrompts.includes(p.id)
+                );
+
+                return (
+                  <div key={promptId} className="prompt-card">
+                    <div className="prompt-header">
+                      <label className="form-label" style={{ marginBottom: 0 }}>
+                        Prompt {index + 1}
+                      </label>
+                      <button
+                        type="button"
+                        className="remove-prompt-btn"
+                        onClick={() => {
+                          setSelectedPrompts(selectedPrompts.filter((id) => id !== promptId));
+                          setAnswers(answers.filter((a) => a.promptId !== promptId));
+                        }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    <select
+                      value={promptId}
+                      onChange={(e) => {
+                        const newPrompts = [...selectedPrompts];
+                        newPrompts[index] = e.target.value;
+                        setSelectedPrompts(newPrompts);
+                      }}
+                      className="prompt-select"
+                    >
+                      <option value={promptId}>{prompt?.text}</option>
+                      {remainingPrompts.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.text}
+                        </option>
+                      ))}
+                    </select>
+
+                    <textarea
+                      placeholder="Your answer..."
+                      value={answers.find((a) => a.promptId === promptId)?.answerText || ''}
+                      onChange={(e) => handlePromptAnswerChange(promptId, e.target.value)}
+                      className="prompt-answer"
+                    />
+                  </div>
+                );
+              })}
+
+              {selectedPrompts.length < 3 && (
+                <button
+                  type="button"
+                  className="add-prompt-btn"
+                  onClick={() => {
+                    const firstUnselected = availablePrompts.find(
+                      (p) => !selectedPrompts.includes(p.id)
+                    );
+                    if (firstUnselected) {
+                      setSelectedPrompts([...selectedPrompts, firstUnselected.id]);
+                    }
+                  }}
+                >
+                  + Add Prompt
+                </button>
+              )}
+            </div>
 
             <div className="form-navigation">
               <Button
@@ -346,7 +423,7 @@ const ProfileSetupPage = () => {
               <Button
                 variant="success"
                 type="submit"
-                disabled={submitting}
+                disabled={submitting || selectedPrompts.length === 0}
                 className="btn-submit"
               >
                 {submitting ? (
