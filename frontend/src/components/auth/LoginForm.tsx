@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
+import { Form, Button, Alert, Spinner } from 'react-bootstrap';
+import './AuthForm.css';
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -36,35 +38,50 @@ const LoginForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Login</h2>
-      {error && <p className="error">{error}</p>}
-      <div>
-        <label htmlFor="email">Email:</label>
-        <input
+    <Form onSubmit={handleSubmit} className="auth-form">
+      {error && <Alert variant="danger">{error}</Alert>}
+
+      <Form.Group className="mb-3">
+        <Form.Label>Email Address</Form.Label>
+        <Form.Control
           type="email"
-          id="email"
+          placeholder="Enter your email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Enter your email"
+          disabled={loading}
           required
         />
-      </div>
-      <div>
-        <label htmlFor="password">Password:</label>
-        <input
+      </Form.Group>
+
+      <Form.Group className="mb-4">
+        <Form.Label>Password</Form.Label>
+        <Form.Control
           type="password"
-          id="password"
+          placeholder="Enter your password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Enter your password"
+          disabled={loading}
           required
         />
-      </div>
-      <button type="submit" disabled={loading}>
-        {loading ? 'Logging in...' : 'Login'}
-      </button>
-    </form>
+      </Form.Group>
+
+      <Button
+        variant="primary"
+        type="submit"
+        className="w-100"
+        disabled={loading}
+        size="lg"
+      >
+        {loading ? (
+          <>
+            <Spinner animation="border" size="sm" className="me-2" />
+            Logging in...
+          </>
+        ) : (
+          'Login'
+        )}
+      </Button>
+    </Form>
   );
 };
 

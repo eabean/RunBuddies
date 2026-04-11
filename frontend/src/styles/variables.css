@@ -1,0 +1,67 @@
+:root {
+  /* Color Palette - Green, Yellow, Orange */
+  --palette-bg-primary-core: #22c55e;
+  --palette-bg-tertiary-core: #16a34a;
+  --palette-text-primary-error: #ea580c;
+  --palette-text-secondary-error-hover: #dc2626;
+  --palette-text-primary: #222222;
+  --palette-text-focused: #3f3f3f;
+  --palette-text-secondary: #6a6a6a;
+  --palette-text-material-disabled: rgba(0, 0, 0, 0.24);
+  --palette-text-link-disabled: #929292;
+  --palette-text-legal: #428bff;
+  --palette-border-gray: #c1c1c1;
+  --palette-surface-light: #f2f2f2;
+  --palette-bg-white: #ffffff;
+
+  /* Accent Colors */
+  --palette-accent-yellow: #eab308;
+  --palette-accent-orange: #f97316;
+  --palette-accent-green-light: #86efac;
+
+  /* Shadows */
+  --shadow-card: rgba(0, 0, 0, 0.02) 0px 0px 0px 1px,
+    rgba(0, 0, 0, 0.04) 0px 2px 6px, rgba(0, 0, 0, 0.1) 0px 4px 8px;
+  --shadow-hover: rgba(0, 0, 0, 0.08) 0px 4px 12px;
+  --shadow-focus: rgb(255, 255, 255) 0px 0px 0px 4px;
+
+  /* Border Radius */
+  --radius-subtle: 4px;
+  --radius-standard: 8px;
+  --radius-badge: 14px;
+  --radius-card: 20px;
+  --radius-large: 32px;
+  --radius-circle: 50%;
+
+  /* Typography */
+  --font-family: "Airbnb Cereal VF", "Circular", -apple-system, system-ui,
+    "Roboto", "Helvetica Neue", sans-serif;
+
+  /* Spacing */
+  --spacing-2xs: 2px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-family);
+  color: var(--palette-text-primary);
+  background-color: var(--palette-bg-white);
+  overflow-x: hidden;
+}

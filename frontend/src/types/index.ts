@@ -22,8 +22,10 @@ export interface Message {
   timestamp: Date;
 }
 
-export interface Profile {
-  userId: string;
+export interface UserProfile {
+  id: string;
+  name: string;
+  age: number;
   interests: string[];
-  questions: Record<string, string>;
+  bio: string;
 }
