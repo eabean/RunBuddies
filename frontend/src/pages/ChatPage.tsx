@@ -28,10 +28,51 @@ interface Match {
   matchedUser: MatchedUser;
 }
 
+const MOCK_MATCHES: Match[] = [
+  {
+    matchId: 'mock-1',
+    matchedAt: new Date().toISOString(),
+    matchedUser: {
+      firstName: 'Sarah',
+      age: 28,
+      biography: 'Marathon runner chasing a sub-3:30. Love trail runs on weekends and post-run brunch.',
+      lookingFor: 'A steady long-run partner for early morning miles.',
+      experienceLevel: 4,
+      paceMinutes: 8,
+      paceUnit: 1,
+      contactInfo: '@sarahrunsfast',
+      mainPhotoUrl: 'https://picsum.photos/seed/sarah/400/500',
+      promptAnswers: [
+        { promptText: 'My favourite post-run meal is…', answerText: 'Avocado toast and a giant iced coffee, always.' },
+        { promptText: 'My running goal this year is…', answerText: 'Qualify for Boston — fingers crossed!' },
+      ],
+    },
+  },
+  {
+    matchId: 'mock-2',
+    matchedAt: new Date(Date.now() - 86400000).toISOString(),
+    matchedUser: {
+      firstName: 'James',
+      age: 32,
+      biography: '5K enthusiast turned half-marathon convert. Running keeps me sane.',
+      lookingFor: 'Someone to push the pace on track days.',
+      experienceLevel: 3,
+      paceMinutes: 9,
+      paceUnit: 1,
+      contactInfo: '@james_on_the_run',
+      mainPhotoUrl: 'https://picsum.photos/seed/james/400/500',
+      promptAnswers: [
+        { promptText: 'My favourite post-run meal is…', answerText: 'A big bowl of ramen — carbs are life.' },
+        { promptText: 'The song that always gets me through a hard mile is…', answerText: 'Lose Yourself — never fails.' },
+      ],
+    },
+  },
+];
+
 const ChatPage: React.FC = () => {
   const navigate = useNavigate();
   const { token, logout } = useAuth();
-  const [matches, setMatches] = useState<Match[]>([]);
+  const [matches, setMatches] = useState<Match[]>(MOCK_MATCHES);
   const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -43,7 +84,7 @@ const ChatPage: React.FC = () => {
     if (!token) return;
     try {
       const data = await api.getMatches(token) as Match[];
-      setMatches(data);
+      setMatches([...MOCK_MATCHES, ...data]);
       setSelectedMatchId(null);
     } catch (err) {
       console.error('Failed to load matches');
@@ -78,8 +119,10 @@ const ChatPage: React.FC = () => {
               type="button"
             >
               <img src={match.matchedUser.mainPhotoUrl} alt={match.matchedUser.firstName} />
-              <h3>{match.matchedUser.firstName}</h3>
-              <p>Matched {new Date(match.matchedAt).toLocaleDateString()}</p>
+              <div>
+                <h3>{match.matchedUser.firstName}</h3>
+                <p>Matched {new Date(match.matchedAt).toLocaleDateString()}</p>
+              </div>
             </button>
           ))}
         </div>
