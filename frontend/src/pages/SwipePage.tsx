@@ -10,6 +10,7 @@ const SwipePage = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMatch, setIsMatch] = useState(false);
+  const [matchedUser, setMatchedUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -36,11 +37,13 @@ const SwipePage = () => {
     try {
       const response = await api.swipe(token, user.userId, isLike);
       if (isLike && response.isMatch) {
+        setMatchedUser(user);
         setIsMatch(true);
         setTimeout(() => {
           setCurrentIndex(currentIndex + 1);
           setIsMatch(false);
-        }, 2000);
+          setMatchedUser(null);
+        }, 5000);
       } else {
         setCurrentIndex(currentIndex + 1);
       }
@@ -50,7 +53,16 @@ const SwipePage = () => {
   };
 
   if (loading) return <div>Loading...</div>;
-  if (isMatch) return <div className="match-celebration">It's a Match! 🎉</div>;
+  if (isMatch) return (
+    <div className="match-celebration">
+      <div className="match-celebration-content">
+        <div className="match-hearts">❤️</div>
+        <h1>It's a Match!</h1>
+        {matchedUser && <p>You and {matchedUser.firstName} liked each other</p>}
+        <button className="match-view-button" onClick={() => navigate('/matches')}>View Matches</button>
+      </div>
+    </div>
+  );
 
   const hasMoreUsers = currentIndex < users.length;
   const currentUser = hasMoreUsers ? users[currentIndex] : null;
@@ -69,7 +81,6 @@ const SwipePage = () => {
           <h2>{currentUser.firstName}, {currentUser.age}</h2>
           <p>{currentUser.biography}</p>
           <p>Looking for: {currentUser.lookingFor}</p>
-          {currentUser.contactInfo && <p>Contact: {currentUser.contactInfo}</p>}
           <div className="swipe-buttons">
             <button onClick={() => handleSwipe(false)}>❌ Pass</button>
             <button onClick={() => handleSwipe(true)}>❤️ Like</button>
