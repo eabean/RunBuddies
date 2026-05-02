@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { Button, Alert, Spinner } from 'react-bootstrap';
@@ -7,6 +7,8 @@ import '../styles/ProfileSetupPage.css';
 
 const ProfileSetupPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isEditing = searchParams.get('edit') === 'true';
   const { token } = useAuth();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -42,19 +44,47 @@ const ProfileSetupPage = () => {
   ];
 
   useEffect(() => {
-    const loadPrompts = async () => {
+    const loadData = async () => {
       if (!token) return;
       try {
         const promptData = await api.getPrompts(token);
         setPrompts(promptData);
-      } catch (err) {
-        setError('Failed to load prompts');
-      } finally {
-        setLoading(false);
+      } catch {
+        // prompts are non-critical, continue
       }
+
+      if (isEditing) {
+        try {
+          const profile = await api.getMyProfile(token);
+          setFormData({
+            firstName: profile.firstName ?? '',
+            dateOfBirth: profile.dateOfBirth ?? '',
+            zipCode: profile.zipCode ?? '',
+            paceMinutes: profile.paceMinutes ?? '',
+            paceUnit: profile.paceUnit ?? 0,
+            matchingRadiusKm: profile.matchingRadiusKm ?? '',
+            experienceLevel: profile.experienceLevel ?? 0,
+            goals: profile.goals ?? '',
+            biography: profile.biography ?? '',
+            lookingFor: profile.lookingFor ?? '',
+            contactInfo: profile.contactInfo ?? '',
+          });
+          const mainPhoto =
+            profile.photos?.find((p: any) => p.isMain) ?? profile.photos?.[0];
+          if (mainPhoto?.url) {
+            setPhotoPreview(mainPhoto.url);
+          } else if (profile.mainPhotoUrl) {
+            setPhotoPreview(profile.mainPhotoUrl);
+          }
+        } catch {
+          setError('Failed to load profile data');
+        }
+      }
+
+      setLoading(false);
     };
-    loadPrompts();
-  }, [token]);
+    loadData();
+  }, [token, isEditing]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -120,7 +150,11 @@ const ProfileSetupPage = () => {
     setSubmitting(true);
     setError('');
     try {
-      await api.createProfile(token, formData);
+      if (isEditing) {
+        await api.updateProfile(token, formData);
+      } else {
+        await api.createProfile(token, formData);
+      }
       if (answers.length > 0) {
         await api.savePromptAnswers(token, answers);
       }
@@ -139,7 +173,7 @@ const ProfileSetupPage = () => {
 
   return (
     <div className="profile-setup-page">
-      <h1>Create Your Profile</h1>
+      <h1>{isEditing ? 'Edit Profile' : 'Create Your Profile'}</h1>
 
       <div className="progress-indicator">
         {[1, 2, 3, 4, 5].map((s) => (
@@ -196,10 +230,10 @@ const ProfileSetupPage = () => {
             <div className="form-navigation">
               <Button
                 variant="secondary"
-                onClick={() => navigate('/')}
+                onClick={() => navigate(isEditing ? '/swipe' : '/')}
                 className="btn-back"
               >
-                Cancel
+                {isEditing ? 'Cancel' : 'Cancel'}
               </Button>
               <Button
                 variant="primary"
@@ -450,9 +484,8 @@ const ProfileSetupPage = () => {
               <p>Choose a photo that shows off your running spirit</p>
             </div>
 
-            <div
+            <label
               className="photo-upload-area"
-              onClick={() => document.getElementById('photo-input')?.click()}
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => {
                 e.preventDefault();
@@ -460,6 +493,15 @@ const ProfileSetupPage = () => {
                 if (file && file.type.startsWith('image/')) handlePhotoChange(file);
               }}
             >
+              <input
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handlePhotoChange(file);
+                }}
+              />
               {photoPreview ? (
                 <img src={photoPreview} alt="Preview" className="photo-preview" />
               ) : (
@@ -476,18 +518,7 @@ const ProfileSetupPage = () => {
                   <p className="photo-upload-hint">JPG, PNG or HEIC · Max 10 MB</p>
                 </div>
               )}
-            </div>
-
-            <input
-              id="photo-input"
-              type="file"
-              accept="image/*"
-              style={{ display: 'none' }}
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) handlePhotoChange(file);
-              }}
-            />
+            </label>
 
             {photoPreview && (
               <button

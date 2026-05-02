@@ -1,3 +1,4 @@
+using Amazon.Runtime;
 using Amazon.S3;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
@@ -37,7 +38,13 @@ builder.Services.Configure<S3Settings>(builder.Configuration.GetSection(S3Settin
 builder.Services.AddSingleton<IAmazonS3>(sp =>
 {
     var settings = sp.GetRequiredService<IOptions<S3Settings>>().Value;
-    return new AmazonS3Client(Amazon.RegionEndpoint.GetBySystemName(settings.Region));
+    var region = Amazon.RegionEndpoint.GetBySystemName(settings.Region);
+    if (!string.IsNullOrEmpty(settings.AccessKey) && !string.IsNullOrEmpty(settings.SecretKey))
+    {
+        var credentials = new BasicAWSCredentials(settings.AccessKey, settings.SecretKey);
+        return new AmazonS3Client(credentials, region);
+    }
+    return new AmazonS3Client(region);
 });
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();

@@ -12,6 +12,7 @@ const SwipePage = () => {
   const [isMatch, setIsMatch] = useState(false);
   const [matchedUser, setMatchedUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [myPhotoUrl, setMyPhotoUrl] = useState<string | null>(null);
 
   useEffect(() => {
     loadUsers();
@@ -20,8 +21,16 @@ const SwipePage = () => {
   const loadUsers = async () => {
     if (!token) return;
     try {
-      const data = await api.getDiscovery(token, 1);
-      setUsers(data);
+      const [data, profile] = await Promise.allSettled([
+        api.getDiscovery(token, 1),
+        api.getMyProfile(token),
+      ]);
+      if (data.status === 'fulfilled') setUsers(data.value);
+      if (profile.status === 'fulfilled') {
+        const p = profile.value as any;
+        const main = p.photos?.find((x: any) => x.isMain) ?? p.photos?.[0];
+        setMyPhotoUrl(main?.url ?? p.mainPhotoUrl ?? null);
+      }
     } catch (err) {
       console.error('Failed to load users');
     } finally {
@@ -71,9 +80,20 @@ const SwipePage = () => {
     <div className="swipe-page">
       <div className="swipe-header">
         <h1>Discover Runners</h1>
-        <button type="button" className="matches-link-button" onClick={() => navigate('/matches')}>
-          View Matches
-        </button>
+        <div className="swipe-header-actions">
+          <button type="button" className="profile-avatar-btn" onClick={() => navigate('/profile-setup?edit=true')} title="Edit Profile">
+            {myPhotoUrl ? (
+              <img src={myPhotoUrl} alt="Edit profile" />
+            ) : (
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+              </svg>
+            )}
+          </button>
+          <button type="button" className="matches-link-button" onClick={() => navigate('/matches')}>
+            View Matches
+          </button>
+        </div>
       </div>
       {hasMoreUsers && currentUser ? (
         <div className="swipe-card">

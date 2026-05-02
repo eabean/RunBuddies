@@ -66,6 +66,28 @@ export const mockApi = {
     return { success: true };
   },
 
+  getMyProfile: async (_token: string) => {
+    return {
+      firstName: 'Alex',
+      dateOfBirth: '1995-06-15',
+      zipCode: '10001',
+      paceMinutes: '8',
+      paceUnit: 1,
+      matchingRadiusKm: '15',
+      experienceLevel: 2,
+      goals: 'Run a half marathon this year',
+      biography: 'Morning runner, coffee addict.',
+      lookingFor: 'A consistent training partner',
+      contactInfo: '@alex_runs',
+      mainPhotoUrl: 'https://picsum.photos/seed/alex/400/500',
+    };
+  },
+
+  updateProfile: async (_token: string, _profileData: any) => {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return { success: true };
+  },
+
   savePromptAnswers: async (token: string, answers: any) => {
     return { success: true };
   },
@@ -82,7 +104,7 @@ export const mockApi = {
         biography: 'Love running in the morning!',
         lookingFor: 'Running buddy for marathons',
         contactInfo: '@sarah_runs • sarah@email.com',
-        mainPhotoUrl: 'https://via.placeholder.com/400x500?text=Sarah',
+        mainPhotoUrl: 'https://picsum.photos/seed/sarah/400/500',
         promptAnswers: [{ promptText: 'Favorite route?', answerText: 'Beach runs at sunset' }],
       },
       {
@@ -95,7 +117,7 @@ export const mockApi = {
         biography: 'Half marathoner, always training',
         lookingFor: 'Competitive running partner',
         contactInfo: '@jessica.strides • jessica@email.com',
-        mainPhotoUrl: 'https://via.placeholder.com/400x500?text=Jessica',
+        mainPhotoUrl: 'https://picsum.photos/seed/jessica/400/500',
         promptAnswers: [{ promptText: 'Favorite route?', answerText: 'Mountain trails' }],
       },
     ];
@@ -119,7 +141,7 @@ export const mockApi = {
         matchedUser: {
           firstName: 'Sarah',
           contactInfo: 'sarah@email.com',
-          mainPhotoUrl: 'https://via.placeholder.com/400x500?text=Sarah',
+          mainPhotoUrl: 'https://picsum.photos/seed/sarah/400/500',
           experienceLevel: 2,
           paceMinutes: 8,
           paceUnit: 1,

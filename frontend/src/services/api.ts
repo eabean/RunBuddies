@@ -1,6 +1,6 @@
 import { mockApi } from './mock';
 
-const USE_MOCK = true; // Set to false when backend is ready
+const USE_MOCK = false; // Set to false when backend is ready
 
 const API_BASE = 'http://localhost:5137/api';
 
@@ -87,14 +87,40 @@ export const api = USE_MOCK
       },
 
       uploadPhoto: async (token: string, file: File) => {
-        const body = new FormData();
-        body.append('photo', file);
-        const res = await fetch(`${API_BASE}/Profiles/me/photos/upload-url`, {
+        // Step 1: get a pre-signed S3 URL from the backend
+        const urlRes = await fetch(`${API_BASE}/Profiles/me/photos/upload-url`, {
           method: 'POST',
-          headers: { Authorization: `Bearer ${token}` },
-          body,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ fileName: file.name, contentType: file.type }),
         });
-        return res.json();
+        if (!urlRes.ok) {
+          const errBody = await urlRes.text();
+          throw new Error(`Failed to get upload URL (${urlRes.status}): ${errBody}`);
+        }
+        const { uploadUrl, s3Key } = await urlRes.json();
+
+        // Step 2: upload the file directly to S3 via the pre-signed URL
+        const s3Res = await fetch(uploadUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': file.type },
+          body: file,
+        });
+        if (!s3Res.ok) throw new Error('Failed to upload photo to S3');
+
+        // Step 3: tell the backend to save the photo metadata
+        const saveRes = await fetch(`${API_BASE}/Profiles/me/photos`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ s3Key, isMain: true, displayOrder: 0 }),
+        });
+        if (!saveRes.ok) throw new Error('Failed to save photo metadata');
+        return saveRes.json();
       },
 
       // DISCOVERY

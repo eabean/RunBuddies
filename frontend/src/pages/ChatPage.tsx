@@ -75,6 +75,7 @@ const ChatPage: React.FC = () => {
   const [matches, setMatches] = useState<Match[]>(MOCK_MATCHES);
   const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [myPhotoUrl, setMyPhotoUrl] = useState<string | null>(null);
 
   useEffect(() => {
     loadMatches();
@@ -83,8 +84,18 @@ const ChatPage: React.FC = () => {
   const loadMatches = async () => {
     if (!token) return;
     try {
-      const data = await api.getMatches(token) as Match[];
-      setMatches([...MOCK_MATCHES, ...data]);
+      const [matchData, profileResult] = await Promise.allSettled([
+        api.getMatches(token),
+        api.getMyProfile(token),
+      ]);
+      if (matchData.status === 'fulfilled') {
+        setMatches([...MOCK_MATCHES, ...(matchData.value as Match[])]);
+      }
+      if (profileResult.status === 'fulfilled') {
+        const p = profileResult.value as any;
+        const main = p.photos?.find((x: any) => x.isMain) ?? p.photos?.[0];
+        setMyPhotoUrl(main?.url ?? p.mainPhotoUrl ?? null);
+      }
       setSelectedMatchId(null);
     } catch (err) {
       console.error('Failed to load matches');
@@ -106,7 +117,23 @@ const ChatPage: React.FC = () => {
 
   return (
     <div className="chat-page">
-      <h1>Your Matches</h1>
+      <div className="chat-page-header">
+        <h1>Your Matches</h1>
+        <button
+          className="profile-avatar-btn"
+          onClick={() => navigate('/profile-setup?edit=true')}
+          title="Edit Profile"
+          type="button"
+        >
+          {myPhotoUrl ? (
+            <img src={myPhotoUrl} alt="Edit profile" />
+          ) : (
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+            </svg>
+          )}
+        </button>
+      </div>
       <div className="chat-layout">
         <div className="matches-grid">
           {matches.map((match) => (
