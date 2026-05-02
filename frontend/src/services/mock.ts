@@ -106,6 +106,11 @@ export const mockApi = {
     return { isMatch: isLike && Math.random() > 0.5, matchId: isLike ? 'match-' + Math.random() : null };
   },
 
+  uploadPhoto: async (_token: string, file: File) => {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return { photoUrl: URL.createObjectURL(file) };
+  },
+
   getMatches: async (token: string) => {
     return [
       {

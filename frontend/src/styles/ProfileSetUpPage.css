@@ -316,6 +316,93 @@
   cursor: not-allowed;
 }
 
+.photo-upload-area {
+  width: 100%;
+  border: 2px dashed var(--palette-bg-primary-core);
+  border-radius: var(--radius-card);
+  background-color: rgba(34, 197, 94, 0.05);
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  margin-bottom: var(--spacing-md);
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.photo-upload-area:hover {
+  background-color: rgba(34, 197, 94, 0.1);
+  border-color: var(--palette-bg-tertiary-core);
+}
+
+.photo-upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xl);
+  text-align: center;
+}
+
+.photo-upload-icon {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #22c55e 0%, #eab308 100%);
+  border-radius: var(--radius-circle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.photo-upload-icon svg {
+  width: 28px;
+  height: 28px;
+  color: white;
+}
+
+.photo-upload-label {
+  margin: 0;
+  font-weight: 600;
+  color: var(--palette-text-primary);
+  font-size: 0.95rem;
+}
+
+.photo-upload-placeholder p {
+  margin: 0;
+  color: var(--palette-text-secondary);
+  font-size: 0.95rem;
+}
+
+.photo-upload-hint {
+  font-size: 0.8rem !important;
+  color: var(--palette-text-link-disabled) !important;
+}
+
+.photo-preview {
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+  display: block;
+}
+
+.photo-remove-btn {
+  background: none;
+  border: none;
+  color: var(--palette-text-primary-error);
+  font-size: 0.88rem;
+  font-family: var(--font-family);
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: var(--spacing-lg);
+  text-decoration: underline;
+}
+
+.photo-remove-btn:hover {
+  color: var(--palette-text-secondary-error-hover);
+}
+
 .profile-setup-page .alert {
   margin-bottom: var(--spacing-lg);
   border: none;

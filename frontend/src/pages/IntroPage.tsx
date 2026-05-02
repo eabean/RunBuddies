@@ -1,10 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import LoginForm from '../components/auth/LoginForm';
 import SignupForm from '../components/auth/SignupForm';
 import '../styles/IntroPage.css';
 
 const IntroPage = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const { token, hasProfile } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (token) {
+      navigate(hasProfile ? '/swipe' : '/profile-setup', { replace: true });
+    }
+  }, [token, hasProfile, navigate]);
 
   return (
     <div className="intro-page">

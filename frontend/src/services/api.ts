@@ -86,6 +86,17 @@ export const api = USE_MOCK
         return res.status === 204 ? { success: true } : res.json();
       },
 
+      uploadPhoto: async (token: string, file: File) => {
+        const body = new FormData();
+        body.append('photo', file);
+        const res = await fetch(`${API_BASE}/Profiles/me/photos/upload-url`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+          body,
+        });
+        return res.json();
+      },
+
       // DISCOVERY
       getDiscovery: async (token: string, page: number = 1) => {
         const res = await fetch(`${API_BASE}/discovery?page=${page}`, {

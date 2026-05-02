@@ -28,6 +28,8 @@ const ProfileSetupPage = () => {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [selectedPrompts, setSelectedPrompts] = useState<string[]>([]);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   // Predefined prompts
   const availablePrompts = [
@@ -75,6 +77,11 @@ const ProfileSetupPage = () => {
     });
   };
 
+  const handlePhotoChange = (file: File) => {
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
+  };
+
   const validateStep = (currentStep: number): boolean => {
     switch (currentStep) {
       case 1:
@@ -83,6 +90,10 @@ const ProfileSetupPage = () => {
         return !!(formData.paceMinutes && formData.matchingRadiusKm);
       case 3:
         return !!(formData.biography || formData.lookingFor || formData.goals);
+      case 4:
+        return selectedPrompts.length > 0;
+      case 5:
+        return true;
       default:
         return true;
     }
@@ -109,11 +120,12 @@ const ProfileSetupPage = () => {
     setSubmitting(true);
     setError('');
     try {
-      // Create profile
       await api.createProfile(token, formData);
-      // Save prompt answers
       if (answers.length > 0) {
         await api.savePromptAnswers(token, answers);
+      }
+      if (photoFile) {
+        await api.uploadPhoto(token, photoFile);
       }
       navigate('/swipe');
     } catch (err: any) {
@@ -130,7 +142,7 @@ const ProfileSetupPage = () => {
       <h1>Create Your Profile</h1>
 
       <div className="progress-indicator">
-        {[1, 2, 3, 4].map((s) => (
+        {[1, 2, 3, 4, 5].map((s) => (
           <div key={s} className={`progress-dot ${s === step ? 'active' : s < step ? 'completed' : ''}`} />
         ))}
       </div>
@@ -151,7 +163,6 @@ const ProfileSetupPage = () => {
               <input
                 type="text"
                 name="firstName"
-          placeholder="First Name"
                 value={formData.firstName}
                 onChange={handleInputChange}
                 placeholder="John"
@@ -175,7 +186,6 @@ const ProfileSetupPage = () => {
               <input
                 type="text"
                 name="zipCode"
-          placeholder="Zip Code"
                 value={formData.zipCode}
                 onChange={handleInputChange}
                 placeholder="10001"
@@ -216,7 +226,6 @@ const ProfileSetupPage = () => {
                 <input
                   type="number"
                   name="paceMinutes"
-          placeholder="Pace (minutes)"
                   value={formData.paceMinutes}
                   onChange={handleInputChange}
                   placeholder="8"
@@ -234,7 +243,6 @@ const ProfileSetupPage = () => {
               <input
                 type="number"
                 name="matchingRadiusKm"
-          placeholder="Matching Radius (km)"
                 value={formData.matchingRadiusKm}
                 onChange={handleInputChange}
                 placeholder="10"
@@ -284,7 +292,6 @@ const ProfileSetupPage = () => {
               <label className="form-label">About You</label>
               <textarea
                 name="biography"
-          placeholder="Biography"
                 value={formData.biography}
                 onChange={handleInputChange}
                 placeholder="Tell us a little about yourself..."
@@ -295,7 +302,6 @@ const ProfileSetupPage = () => {
               <label className="form-label">What You're Looking For</label>
               <textarea
                 name="lookingFor"
-          placeholder="Looking For"
                 value={formData.lookingFor}
                 onChange={handleInputChange}
                 placeholder="What are you looking for in a running partner?"
@@ -306,7 +312,6 @@ const ProfileSetupPage = () => {
               <label className="form-label">Goals</label>
               <textarea
                 name="goals"
-          placeholder="Goals"
                 value={formData.goals}
                 onChange={handleInputChange}
                 placeholder="Your running goals..."
@@ -318,7 +323,6 @@ const ProfileSetupPage = () => {
               <input
                 type="text"
                 name="contactInfo"
-          placeholder="Contact Info (phone, Instagram, etc.)"
                 value={formData.contactInfo}
                 onChange={handleInputChange}
                 placeholder="Instagram, phone, email..."
@@ -423,17 +427,86 @@ const ProfileSetupPage = () => {
             </div>
 
             <div className="form-navigation">
+              <Button variant="secondary" onClick={handleBack} className="btn-back">
+                Back
+              </Button>
               <Button
-                variant="secondary"
-                onClick={handleBack}
-                className="btn-back"
+                variant="primary"
+                onClick={handleNext}
+                disabled={selectedPrompts.length === 0}
+                className="btn-next"
               >
+                Next
+              </Button>
+            </div>
+          </>
+        )}
+
+        {/* Step 5: Photo Upload */}
+        {step === 5 && (
+          <>
+            <div className="step-title">
+              <h2>Add your photo</h2>
+              <p>Choose a photo that shows off your running spirit</p>
+            </div>
+
+            <div
+              className="photo-upload-area"
+              onClick={() => document.getElementById('photo-input')?.click()}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) handlePhotoChange(file);
+              }}
+            >
+              {photoPreview ? (
+                <img src={photoPreview} alt="Preview" className="photo-preview" />
+              ) : (
+                <div className="photo-upload-placeholder">
+                  <div className="photo-upload-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="3" y="5" width="18" height="14" rx="2.5" stroke="currentColor" strokeWidth="1.6"/>
+                      <circle cx="12" cy="12" r="3.2" stroke="currentColor" strokeWidth="1.6"/>
+                      <path d="M9 5l1.5-2h3L15 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                      <circle cx="18" cy="8" r="1" fill="currentColor"/>
+                    </svg>
+                  </div>
+                  <p className="photo-upload-label">Click or drag a photo here</p>
+                  <p className="photo-upload-hint">JPG, PNG or HEIC · Max 10 MB</p>
+                </div>
+              )}
+            </div>
+
+            <input
+              id="photo-input"
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handlePhotoChange(file);
+              }}
+            />
+
+            {photoPreview && (
+              <button
+                type="button"
+                className="photo-remove-btn"
+                onClick={() => { setPhotoFile(null); setPhotoPreview(null); }}
+              >
+                Remove photo
+              </button>
+            )}
+
+            <div className="form-navigation">
+              <Button variant="secondary" onClick={handleBack} className="btn-back">
                 Back
               </Button>
               <Button
                 variant="success"
                 type="submit"
-                disabled={submitting || selectedPrompts.length === 0}
+                disabled={submitting}
                 className="btn-submit"
               >
                 {submitting ? (
