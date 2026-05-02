@@ -53,5 +53,4 @@ yarn-error.log*
 Thumbs.db
 /.claude
 /Service/RunBuddies.csproj.user
-/Service/RunBuddies.md
-/Service/DbSchema.md
+*.md
