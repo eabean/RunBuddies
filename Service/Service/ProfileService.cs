@@ -78,6 +78,26 @@ public class ProfileService(RunBuddiesDbContext db, IOptions<S3Settings> s3Optio
         return MapToResponse(profile);
     }
 
+    public async Task SavePromptAnswers(Guid userId, SavePromptAnswersRequest request)
+    {
+        var profile = await db.Profiles
+            .FirstOrDefaultAsync(p => p.UserId == userId)
+            ?? throw new KeyNotFoundException("Profile not found.");
+
+        var existing = db.PromptAnswers.Where(pa => pa.ProfileId == profile.Id);
+        db.PromptAnswers.RemoveRange(existing);
+
+        var newAnswers = request.Answers.Select(a => new PromptAnswer
+        {
+            ProfileId = profile.Id,
+            PromptId = a.PromptId,
+            AnswerText = a.AnswerText
+        });
+
+        db.PromptAnswers.AddRange(newAnswers);
+        await db.SaveChangesAsync();
+    }
+
     private ProfileResponse MapToResponse(Profile profile) => new()
     {
         Id = profile.Id,

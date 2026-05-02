@@ -34,4 +34,12 @@ public class ProfilesController(IProfileService profileService) : ControllerBase
         var result = await profileService.UpdateProfile(userId, request);
         return Ok(result);
     }
+
+    [HttpPost("me/prompt-answers")]
+    public async Task<IActionResult> SavePromptAnswers(SavePromptAnswersRequest request)
+    {
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        await profileService.SavePromptAnswers(userId, request);
+        return NoContent();
+    }
 }
