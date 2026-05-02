@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RunBuddies.Auth;
 using RunBuddies.Data;
+using RunBuddies.Middleware;
 using RunBuddies.Service;
 using System.Text;
 
@@ -65,6 +66,7 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseRouting();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
