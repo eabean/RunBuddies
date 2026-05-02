@@ -7,14 +7,12 @@ import '../styles/IntroPage.css';
 
 const IntroPage = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const { token, hasProfile } = useAuth();
+  const { token } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (token) {
-      navigate(hasProfile ? '/swipe' : '/profile-setup', { replace: true });
-    }
-  }, [token, hasProfile, navigate]);
+    if (token) navigate('/matches', { replace: true });
+  }, [token, navigate]);
 
   return (
     <div className="intro-page">

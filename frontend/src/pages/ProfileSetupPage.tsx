@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { Button, Alert, Spinner } from 'react-bootstrap';
@@ -7,9 +7,8 @@ import '../styles/ProfileSetupPage.css';
 
 const ProfileSetupPage = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const isEditing = searchParams.get('edit') === 'true';
   const { token } = useAuth();
+  const [profileExists, setProfileExists] = useState(false);
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -45,7 +44,10 @@ const ProfileSetupPage = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      if (!token) return;
+      if (!token) {
+        setLoading(false);
+        return;
+      }
       try {
         const promptData = await api.getPrompts(token);
         setPrompts(promptData);
@@ -53,38 +55,37 @@ const ProfileSetupPage = () => {
         // prompts are non-critical, continue
       }
 
-      if (isEditing) {
-        try {
-          const profile = await api.getMyProfile(token);
-          setFormData({
-            firstName: profile.firstName ?? '',
-            dateOfBirth: profile.dateOfBirth ?? '',
-            zipCode: profile.zipCode ?? '',
-            paceMinutes: profile.paceMinutes ?? '',
-            paceUnit: profile.paceUnit ?? 0,
-            matchingRadiusKm: profile.matchingRadiusKm ?? '',
-            experienceLevel: profile.experienceLevel ?? 0,
-            goals: profile.goals ?? '',
-            biography: profile.biography ?? '',
-            lookingFor: profile.lookingFor ?? '',
-            contactInfo: profile.contactInfo ?? '',
-          });
-          const mainPhoto =
-            profile.photos?.find((p: any) => p.isMain) ?? profile.photos?.[0];
-          if (mainPhoto?.url) {
-            setPhotoPreview(mainPhoto.url);
-          } else if (profile.mainPhotoUrl) {
-            setPhotoPreview(profile.mainPhotoUrl);
-          }
-        } catch {
-          setError('Failed to load profile data');
+      try {
+        const profile = await api.getMyProfile(token);
+        setProfileExists(true);
+        setFormData({
+          firstName: profile.firstName ?? '',
+          dateOfBirth: profile.dateOfBirth ?? '',
+          zipCode: profile.zipCode ?? '',
+          paceMinutes: profile.paceMinutes ?? '',
+          paceUnit: profile.paceUnit ?? 0,
+          matchingRadiusKm: profile.matchingRadiusKm ?? '',
+          experienceLevel: profile.experienceLevel ?? 0,
+          goals: profile.goals ?? '',
+          biography: profile.biography ?? '',
+          lookingFor: profile.lookingFor ?? '',
+          contactInfo: profile.contactInfo ?? '',
+        });
+        const mainPhoto =
+          profile.photos?.find((p: any) => p.isMain) ?? profile.photos?.[0];
+        if (mainPhoto?.url) {
+          setPhotoPreview(mainPhoto.url);
+        } else if (profile.mainPhotoUrl) {
+          setPhotoPreview(profile.mainPhotoUrl);
         }
+      } catch {
+        setProfileExists(false);
       }
 
       setLoading(false);
     };
     loadData();
-  }, [token, isEditing]);
+  }, [token]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -150,7 +151,7 @@ const ProfileSetupPage = () => {
     setSubmitting(true);
     setError('');
     try {
-      if (isEditing) {
+      if (profileExists) {
         await api.updateProfile(token, formData);
       } else {
         await api.createProfile(token, formData);
@@ -173,7 +174,7 @@ const ProfileSetupPage = () => {
 
   return (
     <div className="profile-setup-page">
-      <h1>{isEditing ? 'Edit Profile' : 'Create Your Profile'}</h1>
+      <h1>{profileExists ? 'Edit Profile' : 'Create Your Profile'}</h1>
 
       <div className="progress-indicator">
         {[1, 2, 3, 4, 5].map((s) => (
@@ -230,10 +231,10 @@ const ProfileSetupPage = () => {
             <div className="form-navigation">
               <Button
                 variant="secondary"
-                onClick={() => navigate(isEditing ? '/swipe' : '/')}
+                onClick={() => navigate(profileExists ? '/matches' : '/')}
                 className="btn-back"
               >
-                {isEditing ? 'Cancel' : 'Cancel'}
+                Cancel
               </Button>
               <Button
                 variant="primary"

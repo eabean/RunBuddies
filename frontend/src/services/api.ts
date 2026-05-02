@@ -52,13 +52,16 @@ export const api = USE_MOCK
           },
           body: JSON.stringify(profileData),
         });
-        return res.json();
+        const body = await res.text();
+        if (!res.ok) throw new Error(`createProfile failed (${res.status}): ${body}`);
+        return body ? JSON.parse(body) : {};
       },
 
       getMyProfile: async (token: string) => {
         const res = await fetch(`${API_BASE}/profiles/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        if (!res.ok) throw new Error(`getMyProfile failed: ${res.status}`);
         return res.json();
       },
 
@@ -71,7 +74,9 @@ export const api = USE_MOCK
           },
           body: JSON.stringify(profileData),
         });
-        return res.json();
+        const body = await res.text();
+        if (!res.ok) throw new Error(`updateProfile failed (${res.status}): ${body}`);
+        return body ? JSON.parse(body) : {};
       },
 
       savePromptAnswers: async (token: string, answers: any) => {
@@ -96,11 +101,11 @@ export const api = USE_MOCK
           },
           body: JSON.stringify({ fileName: file.name, contentType: file.type }),
         });
-        if (!urlRes.ok) {
-          const errBody = await urlRes.text();
-          throw new Error(`Failed to get upload URL (${urlRes.status}): ${errBody}`);
-        }
-        const { uploadUrl, s3Key } = await urlRes.json();
+        const urlBody = await urlRes.text();
+        if (!urlRes.ok) throw new Error(`Step 1 failed (${urlRes.status}): ${urlBody}`);
+        if (!urlBody) throw new Error('Step 1 returned empty body');
+        const { uploadUrl, s3Key } = JSON.parse(urlBody);
+        if (!uploadUrl || !s3Key) throw new Error(`Step 1 missing fields, got: ${urlBody}`);
 
         // Step 2: upload the file directly to S3 via the pre-signed URL
         const s3Res = await fetch(uploadUrl, {
@@ -108,7 +113,8 @@ export const api = USE_MOCK
           headers: { 'Content-Type': file.type },
           body: file,
         });
-        if (!s3Res.ok) throw new Error('Failed to upload photo to S3');
+        const s3Body = await s3Res.text();
+        if (!s3Res.ok) throw new Error(`Step 2 S3 upload failed (${s3Res.status}): ${s3Body}`);
 
         // Step 3: tell the backend to save the photo metadata
         const saveRes = await fetch(`${API_BASE}/Profiles/me/photos`, {
@@ -119,8 +125,9 @@ export const api = USE_MOCK
           },
           body: JSON.stringify({ s3Key, isMain: true, displayOrder: 0 }),
         });
-        if (!saveRes.ok) throw new Error('Failed to save photo metadata');
-        return saveRes.json();
+        const saveBody = await saveRes.text();
+        if (!saveRes.ok) throw new Error(`Step 3 failed (${saveRes.status}): ${saveBody}`);
+        return saveBody ? JSON.parse(saveBody) : { success: true };
       },
 
       // DISCOVERY

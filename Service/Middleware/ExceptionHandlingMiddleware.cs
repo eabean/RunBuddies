@@ -20,10 +20,10 @@ public class ExceptionHandlingMiddleware(RequestDelegate next)
             context.Response.StatusCode = 404;
             await context.Response.WriteAsJsonAsync(new { error = ex.Message });
         }
-        catch
+        catch (Exception ex)
         {
             context.Response.StatusCode = 500;
-            await context.Response.WriteAsJsonAsync(new { error = "An unexpected error occurred." });
+            await context.Response.WriteAsJsonAsync(new { error = "An unexpected error occurred.", detail = ex.Message, type = ex.GetType().Name });
         }
     }
 }
