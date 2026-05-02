@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RunBuddies.Auth;
 using RunBuddies.Data;
+using RunBuddies.Infrastructure;
 using RunBuddies.Middleware;
 using RunBuddies.Service;
 using System.Text;
@@ -30,6 +31,8 @@ builder.Services.Configure<JwtSettings>(
     builder.Configuration.GetSection(JwtSettings.SectionName));
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.Configure<S3Settings>(builder.Configuration.GetSection(S3Settings.SectionName));
+builder.Services.AddScoped<IProfileService, ProfileService>();
 
 var jwtSettings = builder.Configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>();
 if (jwtSettings == null)
