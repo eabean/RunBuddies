@@ -5,7 +5,7 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  padding: var(--spacing-md);
+  padding: 0;
   overflow: hidden;
   background: linear-gradient(135deg, #22c55e 0%, #eab308 50%, #f97316 100%);
 }
@@ -22,17 +22,15 @@
 }
 
 .intro-video {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  min-width: 100%;
-  min-height: 100%;
-  width: auto;
-  height: auto;
+  position: fixed;
+  top: -2px;
+  left: -2px;
+  width: calc(100vw + 4px);
+  height: calc(100vh + 4px);
   filter: blur(6px);
   z-index: 0;
   object-fit: cover;
+  pointer-events: none;
 }
 
 .intro-container {
@@ -45,6 +43,7 @@
   text-align: center;
   position: relative;
   z-index: 2;
+  margin: var(--spacing-md);
 }
 
 .intro-container h1 {
