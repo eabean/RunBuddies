@@ -50,24 +50,36 @@ const SwipePage = () => {
   };
 
   if (loading) return <div>Loading...</div>;
-  if (currentIndex >= users.length) return <div><button onClick={() => navigate('/matches')}>View Matches</button></div>;
   if (isMatch) return <div className="match-celebration">It's a Match! 🎉</div>;
 
-  const currentUser = users[currentIndex];
+  const hasMoreUsers = currentIndex < users.length;
+  const currentUser = hasMoreUsers ? users[currentIndex] : null;
 
   return (
     <div className="swipe-page">
-      <h1>Discover Runners</h1>
-      <div className="swipe-card">
-        <img src={currentUser.mainPhotoUrl} alt={currentUser.firstName} />
-        <h2>{currentUser.firstName}, {currentUser.age}</h2>
-        <p>{currentUser.biography}</p>
-        <p>Looking for: {currentUser.lookingFor}</p>
-        <div className="swipe-buttons">
-          <button onClick={() => handleSwipe(false)}>❌ Pass</button>
-          <button onClick={() => handleSwipe(true)}>❤️ Like</button>
-        </div>
+      <div className="swipe-header">
+        <h1>Discover Runners</h1>
+        <button type="button" className="matches-link-button" onClick={() => navigate('/matches')}>
+          View Matches
+        </button>
       </div>
+      {hasMoreUsers && currentUser ? (
+        <div className="swipe-card">
+          <img src={currentUser.mainPhotoUrl} alt={currentUser.firstName} />
+          <h2>{currentUser.firstName}, {currentUser.age}</h2>
+          <p>{currentUser.biography}</p>
+          <p>Looking for: {currentUser.lookingFor}</p>
+          {currentUser.contactInfo && <p>Contact: {currentUser.contactInfo}</p>}
+          <div className="swipe-buttons">
+            <button onClick={() => handleSwipe(false)}>❌ Pass</button>
+            <button onClick={() => handleSwipe(true)}>❤️ Like</button>
+          </div>
+        </div>
+      ) : (
+        <div className="no-more-runners">
+          <p>You're all caught up for now. Check back later for more runners.</p>
+        </div>
+      )}
     </div>
   );
 };
