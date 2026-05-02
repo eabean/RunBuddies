@@ -32,11 +32,10 @@ namespace RunBuddies.Service
                 CreatedAt = DateTime.UtcNow
             };
 
-            var token = _jwtTokenGenerator.GenerateToken(user);
-            _dbContext.Users.Add(user);
+                _dbContext.Users.Add(user);
             await _dbContext.SaveChangesAsync();
 
-           
+            var token = _jwtTokenGenerator.GenerateToken(user);
             return new AuthResponse
             {
                 UserId = user.Id,
