@@ -1,4 +1,6 @@
+using Amazon.S3;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RunBuddies.Auth;
@@ -32,7 +34,13 @@ builder.Services.Configure<JwtSettings>(
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.Configure<S3Settings>(builder.Configuration.GetSection(S3Settings.SectionName));
+builder.Services.AddSingleton<IAmazonS3>(sp =>
+{
+    var settings = sp.GetRequiredService<IOptions<S3Settings>>().Value;
+    return new AmazonS3Client(Amazon.RegionEndpoint.GetBySystemName(settings.Region));
+});
 builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<IPhotoService, PhotoService>();
 
 var jwtSettings = builder.Configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>();
 if (jwtSettings == null)
