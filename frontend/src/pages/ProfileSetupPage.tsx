@@ -27,6 +27,17 @@ const ProfileSetupPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [selectedPrompts, setSelectedPrompts] = useState<string[]>([]);
+
+  // Predefined prompts
+  const availablePrompts = [
+    { id: 'frequency', text: 'How often do you run?' },
+    { id: 'time', text: 'When do you like to run?' },
+    { id: 'location', text: 'Where do you like to run?' },
+    { id: 'injuries', text: 'Do you have any injuries?' },
+    { id: 'pets', text: 'Do you have pets you like to run with?' },
+    { id: 'type', text: 'What type of run do you like to do?' },
+  ];
 
   useEffect(() => {
     const loadPrompts = async () => {
@@ -46,6 +57,12 @@ const ProfileSetupPage = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handlePromptSelect = (promptId: string) => {
+    setSelectedPrompts((prev) =>
+      prev.includes(promptId) ? prev.filter((id) => id !== promptId) : [...prev, promptId]
+    );
   };
 
   const handlePromptAnswerChange = (promptId: string, answerText: string) => {
@@ -92,7 +109,9 @@ const ProfileSetupPage = () => {
     setSubmitting(true);
     setError('');
     try {
+      // Create profile
       await api.createProfile(token, formData);
+      // Save prompt answers
       if (answers.length > 0) {
         await api.savePromptAnswers(token, answers);
       }
@@ -132,6 +151,7 @@ const ProfileSetupPage = () => {
               <input
                 type="text"
                 name="firstName"
+          placeholder="First Name"
                 value={formData.firstName}
                 onChange={handleInputChange}
                 placeholder="John"
@@ -155,6 +175,7 @@ const ProfileSetupPage = () => {
               <input
                 type="text"
                 name="zipCode"
+          placeholder="Zip Code"
                 value={formData.zipCode}
                 onChange={handleInputChange}
                 placeholder="10001"
@@ -195,6 +216,7 @@ const ProfileSetupPage = () => {
                 <input
                   type="number"
                   name="paceMinutes"
+          placeholder="Pace (minutes)"
                   value={formData.paceMinutes}
                   onChange={handleInputChange}
                   placeholder="8"
@@ -212,6 +234,7 @@ const ProfileSetupPage = () => {
               <input
                 type="number"
                 name="matchingRadiusKm"
+          placeholder="Matching Radius (km)"
                 value={formData.matchingRadiusKm}
                 onChange={handleInputChange}
                 placeholder="10"
@@ -261,6 +284,7 @@ const ProfileSetupPage = () => {
               <label className="form-label">About You</label>
               <textarea
                 name="biography"
+          placeholder="Biography"
                 value={formData.biography}
                 onChange={handleInputChange}
                 placeholder="Tell us a little about yourself..."
@@ -271,6 +295,7 @@ const ProfileSetupPage = () => {
               <label className="form-label">What You're Looking For</label>
               <textarea
                 name="lookingFor"
+          placeholder="Looking For"
                 value={formData.lookingFor}
                 onChange={handleInputChange}
                 placeholder="What are you looking for in a running partner?"
@@ -281,6 +306,7 @@ const ProfileSetupPage = () => {
               <label className="form-label">Goals</label>
               <textarea
                 name="goals"
+          placeholder="Goals"
                 value={formData.goals}
                 onChange={handleInputChange}
                 placeholder="Your running goals..."
@@ -292,6 +318,7 @@ const ProfileSetupPage = () => {
               <input
                 type="text"
                 name="contactInfo"
+          placeholder="Contact Info (phone, Instagram, etc.)"
                 value={formData.contactInfo}
                 onChange={handleInputChange}
                 placeholder="Instagram, phone, email..."
@@ -322,18 +349,78 @@ const ProfileSetupPage = () => {
           <>
             <div className="step-title">
               <h2>Answer some questions</h2>
-              <p>Let people know more about you</p>
+              <p>Select up to 3 prompts to answer</p>
             </div>
 
-            {prompts.map((prompt) => (
-              <div key={prompt.id} className="prompt-group">
-                <label className="form-label">{prompt.promptText}</label>
-                <textarea
-                  placeholder="Your answer..."
-                  onChange={(e) => handlePromptAnswerChange(prompt.id, e.target.value)}
-                />
-              </div>
-            ))}
+            <div className="prompts-container">
+              {selectedPrompts.map((promptId, index) => {
+                const prompt = availablePrompts.find((p) => p.id === promptId);
+                const remainingPrompts = availablePrompts.filter(
+                  (p) => !selectedPrompts.includes(p.id)
+                );
+
+                return (
+                  <div key={promptId} className="prompt-card">
+                    <div className="prompt-header">
+                      <label className="form-label" style={{ marginBottom: 0 }}>
+                        Prompt {index + 1}
+                      </label>
+                      <button
+                        type="button"
+                        className="remove-prompt-btn"
+                        onClick={() => {
+                          setSelectedPrompts(selectedPrompts.filter((id) => id !== promptId));
+                          setAnswers(answers.filter((a) => a.promptId !== promptId));
+                        }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    <select
+                      value={promptId}
+                      onChange={(e) => {
+                        const newPrompts = [...selectedPrompts];
+                        newPrompts[index] = e.target.value;
+                        setSelectedPrompts(newPrompts);
+                      }}
+                      className="prompt-select"
+                    >
+                      <option value={promptId}>{prompt?.text}</option>
+                      {remainingPrompts.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.text}
+                        </option>
+                      ))}
+                    </select>
+
+                    <textarea
+                      placeholder="Your answer..."
+                      value={answers.find((a) => a.promptId === promptId)?.answerText || ''}
+                      onChange={(e) => handlePromptAnswerChange(promptId, e.target.value)}
+                      className="prompt-answer"
+                    />
+                  </div>
+                );
+              })}
+
+              {selectedPrompts.length < 3 && (
+                <button
+                  type="button"
+                  className="add-prompt-btn"
+                  onClick={() => {
+                    const firstUnselected = availablePrompts.find(
+                      (p) => !selectedPrompts.includes(p.id)
+                    );
+                    if (firstUnselected) {
+                      setSelectedPrompts([...selectedPrompts, firstUnselected.id]);
+                    }
+                  }}
+                >
+                  + Add Prompt
+                </button>
+              )}
+            </div>
 
             <div className="form-navigation">
               <Button
@@ -346,7 +433,7 @@ const ProfileSetupPage = () => {
               <Button
                 variant="success"
                 type="submit"
-                disabled={submitting}
+                disabled={submitting || selectedPrompts.length === 0}
                 className="btn-submit"
               >
                 {submitting ? (

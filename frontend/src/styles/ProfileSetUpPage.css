@@ -122,29 +122,154 @@
   flex: 0.7;
 }
 
-.prompt-group {
-  margin-bottom: var(--spacing-lg);
-  padding: 0;
-  background: transparent;
-  border: none;
+/* PROMPTS CONTAINER STYLES */
+.prompts-container {
+  margin-bottom: var(--spacing-xl);
+  margin-top: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
 }
 
-.prompt-group label {
-  display: block;
-  font-weight: 500;
-  color: var(--palette-text-primary);
-  margin-bottom: var(--spacing-sm);
+.prompt-card {
+  background-color: #f9fafb;
+  border: 1px solid var(--palette-border-gray);
+  border-radius: var(--radius-standard);
+  padding: var(--spacing-xl);
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.prompt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.prompt-header .form-label {
   font-size: 1rem;
-  line-height: 1.25;
+  font-weight: 600;
+  color: var(--palette-text-primary);
+  margin: 0;
 }
 
-.prompt-group textarea {
-  margin-bottom: 0;
+.remove-prompt-btn {
+  background: none;
+  border: none;
+  font-size: 1.75rem;
+  color: var(--palette-text-secondary);
+  cursor: pointer;
+  padding: var(--spacing-sm);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  border-radius: var(--radius-standard);
+  line-height: 1;
+  flex-shrink: 0;
+  margin-left: var(--spacing-md);
+}
+
+.remove-prompt-btn:hover {
+  background-color: #fee2e2;
+  color: var(--palette-text-primary-error);
+  transform: scale(1.15);
+}
+
+.remove-prompt-btn:active {
+  transform: scale(0.95);
+}
+
+.prompt-select {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: 1px solid var(--palette-border-gray);
+  border-radius: var(--radius-standard);
+  font-size: 1rem;
+  font-family: var(--font-family);
+  color: var(--palette-text-primary);
+  background-color: var(--palette-bg-white);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: var(--spacing-xl);
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right var(--spacing-md) center;
+  background-size: 20px;
+  padding-right: 40px;
+}
+
+.prompt-select:hover {
+  border-color: var(--palette-bg-primary-core);
+}
+
+.prompt-select:focus {
+  outline: none;
+  border-color: var(--palette-bg-primary-core);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+.prompt-answer {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: 1px solid var(--palette-border-gray);
+  border-radius: var(--radius-standard);
+  font-size: 1rem;
+  font-family: var(--font-family);
+  color: var(--palette-text-primary);
+  background-color: var(--palette-bg-white);
+  resize: none;
+  min-height: 110px;
+  transition: all 0.3s ease;
+}
+
+.prompt-answer:focus {
+  outline: none;
+  border-color: var(--palette-bg-primary-core);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+.add-prompt-btn {
+  width: 100%;
+  padding: var(--spacing-lg) var(--spacing-lg);
+  background-color: rgba(34, 197, 94, 0.1);
+  color: var(--palette-bg-primary-core);
+  border: 2px dashed var(--palette-bg-primary-core);
+  border-radius: var(--radius-standard);
+  font-size: 1rem;
+  font-weight: 500;
+  font-family: var(--font-family);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: var(--spacing-xl);
+}
+
+.add-prompt-btn:hover {
+  background-color: rgba(34, 197, 94, 0.2);
+  transform: translateY(-2px);
+}
+
+.add-prompt-btn:active {
+  transform: translateY(0);
 }
 
 .form-navigation {
   display: flex;
-  gap: var(--spacing-md);
+  gap: var(--spacing-lg);
   margin-top: var(--spacing-xl);
 }
 
@@ -200,10 +325,6 @@
   font-size: 0.88rem;
 }
 
-.profile-setup-page .spinner-border {
-  color: var(--palette-bg-primary-core);
-}
-
 @media (max-width: 640px) {
   .profile-setup-page {
     padding: var(--spacing-lg) var(--spacing-sm);
@@ -219,6 +340,14 @@
 
   .step-title h2 {
     font-size: 1.25rem;
+  }
+
+  .prompts-container {
+    gap: var(--spacing-lg);
+  }
+
+  .prompt-card {
+    padding: var(--spacing-lg);
   }
 
   .form-navigation {
